@@ -26,6 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -42,7 +47,10 @@ jobs:
           }
           console.log('Public oracle JSON is syntactically valid.');
           NODE
-          printf '%s\n' '<!doctype html><html><head><meta charset="utf-8"><title>Dreamiez Oracle</title></head><body><h1>Dreamiez Oracle</h1><p>Public verification surface.</p><p><a href="./did.json">DID</a></p><p><a href="./bootstrap/event-000001.json">Bootstrap event</a></p></body></html>' > public/index.html
+          mkdir -p public/.well-known
+          cp public/did.json public/.well-known/did.json
+          printf '%s\n' '<!doctype html><html><head><meta charset="utf-8"><title>Dreamiez Oracle</title></head><body><h1>Dreamiez Oracle</h1><p>Public verification surface.</p><p><a href="./.well-known/did.json">DID document</a></p><p><a href="./bootstrap/event-000001.json">Bootstrap event</a></p></body></html>' > public/index.html
+          test -f public/.well-known/did.json
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
