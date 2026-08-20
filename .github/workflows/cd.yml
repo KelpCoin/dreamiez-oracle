@@ -1,0 +1,54 @@
+name: Dreamiez CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dreamiez-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish public oracle surface
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare public site
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public/did.json || { echo 'Missing public/did.json'; exit 1; }
+          test -f public/bootstrap/event-000001.json || { echo 'Missing bootstrap event'; exit 1; }
+          node - <<'NODE'
+          const fs = require('fs');
+          for (const p of ['public/did.json','public/bootstrap/event-000001.json']) {
+            JSON.parse(fs.readFileSync(p, 'utf8'));
+          }
+          console.log('Public oracle JSON is syntactically valid.');
+          NODE
+          printf '%s\n' '<!doctype html><html><head><meta charset="utf-8"><title>Dreamiez Oracle</title></head><body><h1>Dreamiez Oracle</h1><p>Public verification surface.</p><p><a href="./did.json">DID</a></p><p><a href="./bootstrap/event-000001.json">Bootstrap event</a></p></body></html>' > public/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
