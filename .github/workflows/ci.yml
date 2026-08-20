@@ -1,0 +1,84 @@
+name: Dreamiez CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamiez-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify protocol and G0 Gauntlet
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Reject tracked private material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -Ei '(^|/)(private\.pem|private\.key|.*secret.*|KEY-CUSTODY\.json)$'; then
+            echo 'Tracked private key or secret material detected.'
+            exit 1
+          fi
+
+      - name: Validate JSON documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          function walk(dir) {
+            if (!fs.existsSync(dir)) return [];
+            const out = [];
+            for (const name of fs.readdirSync(dir)) {
+              const p = path.join(dir, name);
+              const st = fs.statSync(p);
+              if (st.isDirectory()) out.push(...walk(p));
+              else if (name.endsWith('.json')) out.push(p);
+            }
+            return out;
+          }
+          const files = [...walk('schemas'), ...walk('public'), ...walk('tests'), ...walk('proof')];
+          for (const file of files) JSON.parse(fs.readFileSync(file, 'utf8'));
+          console.log(`Validated ${files.length} JSON files.`);
+          NODE
+
+      - name: Run G0 Gauntlet
+        run: node gauntlet/run-gauntlet.js
+
+      - name: Verify proof artifact is PASS
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const p = 'proof/g0-result.json';
+          if (!fs.existsSync(p)) throw new Error('Missing proof/g0-result.json');
+          const result = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (result.result !== 'PASS') throw new Error('G0 proof is not PASS');
+          if (result.dependency !== 'NONE_ON_DREAMLEDGER') throw new Error('DreamLedger dependency detected');
+          if (result.verifier !== 'INDEPENDENT') throw new Error('Verifier is not marked independent');
+          console.log('G0 proof PASS, independent, no DreamLedger dependency.');
+          NODE
+
+      - name: Upload G0 proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamiez-g0-proof-${{ github.sha }}
+          path: proof/g0-result.json
+          if-no-files-found: error
+          retention-days: 30
