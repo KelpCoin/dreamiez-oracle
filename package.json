@@ -1,0 +1,13 @@
+{
+  "name": "dreamiez-oracle",
+  "version": "0.1.0",
+  "private": false,
+  "description": "DATP v0.1 verifier and adversarial G0 Gauntlet",
+  "scripts": {
+    "gauntlet": "node gauntlet/run-gauntlet.js",
+    "test": "node gauntlet/run-gauntlet.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

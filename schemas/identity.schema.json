@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"DATP Identity",
+  "type":"object",
+  "required":["id","type","controller"],
+  "properties":{
+    "id":{"type":"string"},
+    "type":{"type":"string"},
+    "controller":{"type":"string"},
+    "created_at":{"type":"string","format":"date-time"}
+  }
+}

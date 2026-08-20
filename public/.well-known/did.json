@@ -1,0 +1,12 @@
+{
+  "id":"did:web:dreamiez.org",
+  "verificationMethod":[],
+  "assertionMethod":[],
+  "service":[
+    {
+      "id":"did:web:dreamiez.org#oracle",
+      "type":"DreamiezOracle",
+      "serviceEndpoint":"https://dreamiez.org/oracle/v1"
+    }
+  ]
+}
