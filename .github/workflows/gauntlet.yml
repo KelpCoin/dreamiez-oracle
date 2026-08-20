@@ -14,3 +14,9 @@ jobs:
           node-version: '20'
       - name: Run G0 Gauntlet
         run: node gauntlet/run-gauntlet.js
+      - name: Upload G0 proof artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamiez-g0-proof
+          path: proof/g0-result.json
+          if-no-files-found: error
