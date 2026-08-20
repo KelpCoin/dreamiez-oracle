@@ -1,26 +1,27 @@
 const assert = require('assert');
 const crypto = require('crypto');
-const { verifyEvent } = require('../verifier/verify-event');
+const { canonicalize, verifyEvent } = require('../verifier/verify-event');
 const { verifyChain, hashEvent } = require('../verifier/verify-chain');
 
 function sign(event, privateKey) {
-  const copy = JSON.parse(JSON.stringify(event));
-  delete copy.signature;
-  copy.signature = crypto.sign(null, Buffer.from(require('../verifier/verify-event').canonicalize(copy)), privateKey).toString('base64');
-  return copy;
+  const unsigned = JSON.parse(JSON.stringify(event));
+  delete unsigned.signature;
+  const signature = crypto.sign(null, Buffer.from(canonicalize(unsigned), 'utf8'), privateKey).toString('base64');
+  return Object.assign({}, unsigned, { signature });
 }
 
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
 const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
 const now = new Date().toISOString();
-let e1 = sign({
+
+const e1 = sign({
   event_id:'evt_000001', event_type:'ORACLE_BOOTSTRAP', timestamp_utc:now,
   subject_id:'did:web:dreamiez.org', issuer_id:'did:web:dreamiez.org',
   previous_event_hash:null, payload:{status:'TRUST_ORACLE_INITIALIZED', methodology:'DATP-SCORE-0.1'}
 }, privateKey);
 
-let e2 = sign({
+const e2 = sign({
   event_id:'evt_000002', event_type:'CORRECTION', timestamp_utc:now,
   subject_id:'did:web:dreamiez.org', issuer_id:'did:web:dreamiez.org',
   previous_event_hash:hashEvent(e1), payload:{corrects:'evt_000001'}
