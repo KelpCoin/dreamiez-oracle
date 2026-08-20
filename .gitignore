@@ -1,0 +1,5 @@
+# Production secrets and local proof output
+DreamiezOracleSecrets/
+*.pem
+proof/*.local.json
+node_modules/
