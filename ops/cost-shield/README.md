@@ -1,0 +1,3 @@
+# GitHub Actions emergency cost shield
+
+3 original workflow YAML files moved byte-for-byte from .github/workflows/ to .github/workflows-paused/ as a reversible cost-containment action. The KelpCoin account has exhausted included Actions minutes. Restore only selected jobs after owner approval and Actions US$0 overage budget verification. No CI run equals a pass; security and production release fail closed. No cloud fallback is claimed verified. See ops/cost-shield/actions-cost-shield-manifest.json for original Git blob hashes. Use local read-only tests rather than paid cloud CI while paused. No publish, payments, or deployments authorized.

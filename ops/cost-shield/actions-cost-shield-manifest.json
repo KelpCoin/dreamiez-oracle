@@ -1,0 +1,23 @@
+{
+  "schema": "beck/actions-cost-shield/v1",
+  "repo": "KelpCoin/dreamiez-oracle",
+  "alert": "2001 of 2000 included minutes, reset December 1 2026",
+  "before": "3c2008a93cead3331b0338cd0d61b5c7707e497c",
+  "paused_at": "2026-11-08 NZDT",
+  "budget_cap_verified": false,
+  "files": [
+    {
+      "path": ".github/workflows/cd.yml",
+      "sha": "a092bca13219ee1cee68e7f49193ce85320b6221"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha": "9240da33a92b1a37eb71fbeac311efc2562681fe"
+    },
+    {
+      "path": ".github/workflows/gauntlet.yml",
+      "sha": "8eec94b636dbeb3fb1724bd4448f2e4fa47ea2e5"
+    }
+  ],
+  "release_authorized": false
+}
